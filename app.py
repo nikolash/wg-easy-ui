@@ -51,23 +51,33 @@ def wg_up():
         elif vpn_location == "tun-custom":
             wg_interface = app.config["VPN_INTERFACE_CUSTOM"]
             
-            # Custom interface selected, create/update config file for current selection
-            selected_server = next(filter(lambda x: x["hostname"] == request.form["vpn-custom"], server_list), None)
-            with open("/etc/wireguard/" + app.config["VPN_INTERFACE_CUSTOM"] + ".conf", "w") as file:
-                file.write("[Interface]\n")
-                file.write("PrivateKey = " + app.config["MULLVAD_PRIVATE_KEY"] + "\n")
-                file.write("Address = " + app.config["MULLVAD_ADDRESS"] + "\n")
-                file.write("DNS = " + app.config["MULLVAD_DNS"] + "\n")
-                file.write("\n")
-                file.write("[Peer]\n")
-                file.write("PublicKey = " + selected_server["pubkey"] + "\n")
-                file.write("Endpoint = " + selected_server["ipv4_addr_in"] + ":" + app.config["MULLVAD_SERVER_PORT"] + "\n")
-                file.write("AllowedIPs = 0.0.0.0/0")
+            selected_item = request.form["vpn-custom"]
+
+            print ("xxx: " + selected_item)
+
+            if len(selected_item) > 0:
+                # Custom interface selected, create/update config file for current selection
+                selected_server = next(filter(lambda x: x["hostname"] == selected_item, server_list), None)
+                
+
+                with open("/etc/wireguard/" + app.config["VPN_INTERFACE_CUSTOM"] + ".conf", "w") as file:
+                    file.write("[Interface]\n")
+                    file.write("PrivateKey = " + app.config["MULLVAD_PRIVATE_KEY"] + "\n")
+                    file.write("Address = " + app.config["MULLVAD_ADDRESS"] + "\n")
+                    file.write("DNS = " + app.config["MULLVAD_DNS"] + "\n")
+                    file.write("\n")
+                    file.write("[Peer]\n")
+                    file.write("PublicKey = " + selected_server["pubkey"] + "\n")
+                    file.write("Endpoint = " + selected_server["ipv4_addr_in"] + ":" + app.config["MULLVAD_SERVER_PORT"] + "\n")
+                    file.write("AllowedIPs = 0.0.0.0/0")
+            else: 
+                action_response = "Please select a custom location in the dropdown."
+                return render_template("index.html", wan_status = get_wan_status(), wg_status = get_wg_status(), 
+                    action_response = action_response, server_list = server_list, wg_interface = wg_interface)
         else:
             wg_interface = app.config["VPN_INTERFACE_US"] # default with no selection is US
         
         action_response = subprocess.run(["wg-quick", "up", wg_interface], stderr = subprocess.PIPE).stderr.decode()
-        #action_response = request.form["vpn-custom"] + " selected."
 
     return render_template("index.html", wan_status = get_wan_status(), wg_status = get_wg_status(), 
         action_response = action_response, server_list = server_list, 
