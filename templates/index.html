@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>VPN Dashboard</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link rel="stylesheet" href="{{ url_for('static',filename='assets/css/main.css') }}" />
+        <noscript><link rel="stylesheet" href="{{ url_for('static',filename='assets/css/noscript.css') }}" /></noscript>
+    </head>
+    <body class="is-preload">
+
+        <!-- Wrapper -->
+            <div id="wrapper">
+
+                <!-- Header -->
+                    <header id="header">
+                        <a href="/" class="logo">WG Easy UI</a>
+                    </header>
+
+                <!-- Main -->
+                    <div id="main">
+
+                        <!-- Sections -->
+                            <section class="post">
+                                <h2>VPN Status</h2>
+                                <p>
+                                {% if wg_status %}
+                                    <font color="green">VPN is up 
+                                    {% if wg_status.interface == "tun0-us" %}
+                                        (US)
+                                    {% elif wg_status.interface == "tun0-uk" %}
+                                        (UK)
+                                    {% elif wg_status.interface == "tun0" %}
+                                        (Custom)
+                                    {% endif %} </font>
+                                    <br />
+                                    Endpoint: {{ wg_status.endpoint }} <br />
+                                    Latest Handshake: {{ wg_status.latest_handshake }} <br />
+                                    Transfer: {{ wg_status.transfer }}
+                                {% else %}
+                                    <font color="red">VPN is down</font>
+                                {% endif %} 
+                                </p>
+
+                                <h2>Geo Location</h2>
+                                {% if wan_status.city != "" %}
+                                    <p>{{ wan_status.city }}, {{ wan_status.region }}, {{ wan_status.country_name }}<br />
+                                    IP {{ wan_status.ip }}</p>
+                                {% else %}
+                                    <p>n/a</p>
+                                {% endif %}
+
+                                <!-- Form -->
+                                <h2>Operate VPN</h2>
+
+                                {% if wg_status %}
+                                <form method="post" action="/down">
+                                {% else %}
+                                <form method="post" action="/up">
+                                {% endif %}
+                                    <div class="row gtr-uniform">
+                                        <div class="col-4 col-12-small">
+                                            <input type="radio" id="tun-us" value="tun-us" name="vpn-location" 
+                                                {% if wg_interface == 'tun0-us' or wg_interface is none %} checked {% endif %} {% if wg_status %} disabled {% endif %}>
+                                            <label for="tun-us">US</label>
+                                        </div>
+                                        <div class="col-4 col-12-small">
+                                            <input type="radio" id="tun-uk" value="tun-uk" name="vpn-location" 
+                                                {% if wg_interface == 'tun0-uk' %} checked {% endif %} {% if wg_status %} disabled {% endif %}>
+                                            <label for="tun-uk">UK</label>
+                                        </div>
+                                        <div class="col-4 col-12-small">
+                                            <input type="radio" id="tun-custom" value="tun-custom" name="vpn-location" 
+                                                {% if wg_interface == 'tun0' %} checked {% endif %} {% if wg_status %} disabled {% endif %}>
+                                            <label for="tun-custom">Custom</label>
+                                        </div>
+                                        <div class="col-12">
+                                            <select name="vpn-custom" id="vpn-custom" {% if wg_status %} disabled {% endif %}>
+                                                <option value="">- Select Custom Location -</option>
+                                                {% for s in server_list %}
+                                                    {% if s.active and s.type == "wireguard" %}
+                                                    <option value="{{ s.hostname }}" {% if s.hostname == selected_server %} selected {% endif %}>
+                                                        {{ s.country_name }}, {{ s.city_name }}: {{ s.hostname }} ({{ s.network_port_speed }} Gbps)
+                                                    </option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    
+                                        <div class="col-12">
+                                            <ul class="actions">
+                                                <li>
+                                                {% if wg_status %}
+                                                    <input type="submit" value="Stop VPN" class="primary" />
+                                                {% else %}
+                                                    <input type="submit" value="Start VPN" class="primary" />
+                                                {% endif %}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </form>
+
+                            {% if action_response %}
+                                <hr />
+                                <h2>Server Response</h2>
+                                <pre><code>{{ action_response }}</code></pre>
+                            {% endif %}
+                            </section>
+
+                    </div>
+
+                    <!-- Copyright -->
+                    <div id="copyright">
+                        <ul><li>Wireguard Easy UI v0.1</li></ul>
+                    </div>
+
+            </div>
+
+        <!-- Scripts -->
+        <script src="{{ url_for('static',filename='assets/js/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='assets/js/jquery.scrollex.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='assets/js/jquery.scrolly.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='assets/js/browser.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='assets/js/breakpoints.min.js') }}"></script>
+        <script src="{{ url_for('static',filename='assets/js/util.js') }}"></script>
+        <script src="{{ url_for('static',filename='assets/js/main.js') }}"></script>
+    </body>
+</html>
