@@ -33,6 +33,6 @@ Limitations:
 - Setup Wireguard and Mullvad (the interface currently only works with Mullvad) as described here: https://mullvad.net/en/help/wireguard-and-mullvad-vpn/
 - Create two connection profiles within /etc/wireguard: tun0-us and tun0-uk (names can be changed in config.py). These will be used by the correspondent options on the GUI. Note: If a custom connection is being created, /etc/wireguard/tun0.conf will be created with the respective information in it. It will be overwritten every time a custom connection is started
 - Install a WSGI container like gunicorn, make sure the process can execute wg and wg-quick commands
-- Install flask: (pip install -U Flask)
+- Install python and flask: (pip install -U Flask)
 - Edit config.py file, currently only MULLVAD_PRIVATE_KEY needs to be adapted, the other values can stay the way they are. The value can be extracted after the installation from one of the profiles in /etc/wireguard
 - Deploy the application to the WSGI server (app.py, config.py as well as 'static' and 'templates' folders)
