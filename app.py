@@ -53,8 +53,6 @@ def wg_up():
             
             selected_item = request.form["vpn-custom"]
 
-            print ("xxx: " + selected_item)
-
             if len(selected_item) > 0:
                 # Custom interface selected, create/update config file for current selection
                 selected_server = next(filter(lambda x: x["hostname"] == selected_item, server_list), None)
@@ -110,7 +108,7 @@ def get_server_list():
     if response.status_code == 200:
         server_list = response.json()
     else:
-        print('Error accessing Mullvad API: ', response.status_code)
+        print("Error accessing Mullvad API: ", response.status_code)
     return server_list
 
 # Get public IP
