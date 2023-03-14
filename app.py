@@ -14,6 +14,18 @@ if app.config["MULLVAD_PRIVATE_KEY"] == "":
 
 # JSON API
 # api/vpn/
+
+# 'action' start or stop via POST
+@app.route('/api/vpn', methods = ['GET'])
+def api_vpn_status():
+    status = "unknown"
+    if get_vpn_active():
+        status = "up"
+    else:
+        status = "down"
+
+    return jsonify({'status': status})
+
 # 'action' start or stop via POST
 @app.route('/api/vpn', methods = ['POST'])
 def api_vpn():
@@ -147,7 +159,10 @@ def get_wan_status():
 # Check if VPN is active (using wg show)
 def get_vpn_active():
     wg_show = subprocess.run(["wg", "show"], stdout = subprocess.PIPE).stdout.decode()
-    return wg_show
+    if wg_show:
+        return True
+    else:
+        return False
 
 # Get wireguard status (using wg show) in array format
 def get_wg_status():
