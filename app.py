@@ -12,6 +12,33 @@ if app.config["MULLVAD_PRIVATE_KEY"] == "":
 
 # ~~~~~~~~~~~~~~ Routes
 
+# JSON API
+# api/vpn/
+# 'action' start or stop via POST
+@app.route('/api/vpn', methods = ['POST'])
+def api_vpn():
+    if request.method == 'POST':
+        action = request.json.get('action')
+        wg_interface = app.config["VPN_INTERFACE_US"] # For now, start always starts the US VPN
+
+        if action == 'start':
+            if get_vpn_active():
+                # If VPN already up, generate error message
+                action_response = "VPN already active, please stop service first."
+            else:
+                action_response = subprocess.run(["wg-quick", "up", wg_interface], stderr = subprocess.PIPE).stderr.decode()
+            
+            return jsonify({'status': 'success', 'response': action_response})
+        elif action == 'stop':
+            if get_vpn_active():
+                action_response = subprocess.run(["wg-quick", "down", wg_interface], stderr = subprocess.PIPE).stderr.decode()
+            else:
+                action_response = "VPN is not up."
+            
+            return jsonify({'status': 'success', 'response': action_response})
+        else:
+            return jsonify({'status': 'error', 'message': 'Invalid action, use start or stop.'})
+
 # ############## Home ##############
 @app.route("/")
 def index():
