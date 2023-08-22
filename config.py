@@ -5,6 +5,9 @@
 # Mullvad private key. Install Mullvad according to https://mullvad.net/en/help/wireguard-and-mullvad-vpn/ and extract private key from one of the generated interfaces in /etc/wireguard
 MULLVAD_PRIVATE_KEY = "" # Replace with your private key 
 
+# PLANNED FEATURE: Mullvad account number (optional for additional features if mullvad client is installed)
+#MULLVAD_ACCOUNT_NO = "" # Only used for account information; everything else is handled via wireguard. Needs the mullvad client installed. Can be left empty to work without mullvad client.
+
 VPN_INTERFACE_US = "tun0-us" # This interface needs to exist in /etc/wireguard 
 VPN_INTERFACE_UK = "tun0-uk" # This interface needs to exist in /etc/wireguard 
 
